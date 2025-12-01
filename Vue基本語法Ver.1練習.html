@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <form @submit.prevent="addItem">
+      <input type="text" v-model="input" :style="{border: inputBorder}">
+      <input type="submit" value="添加">
+    </form>
+    <input type="text" v-model="search" placeholder="搜尋">
+    <hr>
+    <input type="reset" value="清除" @click="resetItem">
+    <input type="checkbox" @click="checkAll">
+    <ul>
+      <li v-for="(item, idx) in filterList">
+        <input type="checkbox" v-model="item.done">
+        <del v-if="item.done">{{item.text}}</del>
+        <span v-else>{{item.text}}</span>
+        <input type="button" value="x" @click="delItem(item.id)">
+      </li>
+    </ul>
+  </div>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          input: '',
+          list: [],
+          id: 1,
+          search: '',
+        }
+      },
+      methods: {
+        addItem(event) {
+          if (this.input.length < 3) return
+
+          this.list.push({
+            text: this.input,
+            done: false,
+            id: this.id++
+          })
+
+          this.input = ''
+        },
+        delItem(id) {
+          const idx = this.list.findIndex(item => {
+            return item.id === id
+          })
+          this.list.splice(idx, 1)
+        },
+        resetItem() {
+          this.list = []
+          this.search = ''
+        },
+        checkAll() {
+          const checked = event.target.checked
+          this.list.forEach(item => {
+            item.done = checked
+          })
+        }
+      },
+      computed: {
+        inputBorder() {
+          if (this.input.length === 0) {
+            return ''
+          } else if (this.input.length < 3) {
+            return '5px solid red'
+          } else {
+            return '5px solid green'
+          }
+        },
+        filterList() {
+          return this.list.filter(item => {
+            return item.text.toUpperCase().includes(this.search.toUpperCase())
+          })
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>

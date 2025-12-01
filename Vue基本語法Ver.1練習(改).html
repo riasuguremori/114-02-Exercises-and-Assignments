@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <form @submit.prevent="add">
+      <input type="text" v-model="input" :style=" {border: inputBorder}">
+      <input type="submit" value="新增">
+    </form>
+    <input type="text" v-model="search">
+    <input type="button" value="全部刪除" @click="delAll">
+    <input type="button" value="全部已完成" @click="markAll(true)">
+    <input type="button" value="全部未完成" @click="markAll(false)">
+    <ul>
+      <li v-for="(item, idx) in filterlist">
+        <input type="checkbox" v-model="item.done">
+        <del v-if="item.done">{{item.text}}</del>
+        <template v-else>{{item.text}}</template>
+        <input type="button" value="x" @click="delItem(item.id)">
+      </li>
+    </ul>
+  </div>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    Vue.createApp({
+      data() {
+        return {
+          input: '',
+          list: [],
+          id: 1,
+          search: ''
+        }
+      },
+      methods: {
+        add() {
+          if (this.input.length < 2) return
+
+          this.list.push({
+            text: this.input,
+            done: false,
+            id: this.id++,
+          })
+
+          this.input = ''
+        },
+        delItem(id) {
+          const idx = this.list.findIndex(item => item.id === id)
+          this.list.splice(idx, 1)
+        },
+        delAll() {
+          this.list = [] // => this.list.length = 0, this.list.splice(0, this.list.length)
+        },
+        markAll() {
+          this.list.forEach(item => {
+            item.done = value
+          })
+        }
+      }
+      ,
+      computed: {
+        inputBorder() {
+          if (this.input.length === 0) {
+            return ''
+          } else if (this.input.length < 2) {
+            return '5px solid red'
+          } else {
+            return '5px solid green'
+          }
+        },
+        filterlist() {
+          return this.list.filter(item => item.text.includes(this.search))
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
