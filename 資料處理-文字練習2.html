@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const code = (text, num) => {
+      const array = []
+      for (let i = 0; i < text.length; i++) {
+        let charcode = text.toUpperCase().charCodeAt(i)
+        if (charcode >= 65) {
+          let newcharcode = (charcode - 65 + num) % 26 + 65
+          array.push(String.fromCharCode(newcharcode))
+        } else { array.push(String.fromCharCode(charcode)) }
+      } return array.join('')
+    }
+    const input = prompt()
+    const num = prompt() * 1
+    document.write(code(input, num))
+  </script>
+</body>
+
+</html>

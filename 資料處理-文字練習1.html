@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const numbers = (num1, num2) => {
+      let result = ''
+      const n1 = Number(num1)
+      const n2 = Number(num2)
+      if (isNaN(n1) === true || isNaN(2) === true) {
+        alert('error 請輸入數字')
+      } else {
+        result = n1 + n2
+      } return result
+    }
+    const number1 = prompt('輸入第一個數字')
+    const number2 = prompt('輸入第二個數字')
+    document.write(numbers(number1, number2))
+  </script>
+</body>
+
+</html>

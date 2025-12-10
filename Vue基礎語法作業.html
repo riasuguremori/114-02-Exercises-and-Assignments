@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <form @submit.prevent="add">
+      <input type="text" v-model="input" :style="{ border: inputBorder}">
+      <input type="submit" value="新增">
+    </form>
+
+    <hr>
+
+    <input type="button" value="全部已完成" @click="markAll(true)">
+    <input type="button" value="全部未完成" @click="markAll(false)">
+    <input type="button" value="全部顯示" @click="setFilter('all')">
+    <input type="button" value="顯示已完成" @click="setFilter('active')">
+    <input type="button" value="顯示未完成" @click="setFilter('completed')">
+    <input type="button" value="清除全部" @click="delAll">
+    <input type="button" value="清除已完成" @click="delComplete(false)">
+    <input type="button" value="清除未完成" @click="delComplete(true)">
+
+    <hr>
+
+    <p>目前顯示：全部，共{{listCount}}個</p>
+    <ul>
+      <li v-for="(item, idx) in filteredList">
+        <input type="checkbox" v-model="item.done">
+        <template v-if="editId === item.id">
+          <input type="text" v-model="item.text" @keydown.enter="finishEdit" @keydown.esc="cancelEdit(item)">
+        </template>
+        <template v-else>
+          <span @dblclick="startEdit(item)">
+            <del v-if="item.done">{{item.text}}</del>
+            <template v-else>{{item.text}}</template>
+          </span>
+        </template>
+        <input type="button" value="x" @click="delItem(item.id)">
+      </li>
+    </ul>
+  </div>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref, reactive, computed, watch, onMounted } = Vue
+    createApp({
+      setup() {
+        const input = ref('')
+        const list = reactive([])
+        let id = 1
+
+        const add = () => {
+          if (input.value.length < 2) return
+
+          list.push(
+            {
+              text: input.value,
+              done: false,
+              id: id++
+            }
+          )
+
+          input.value = ''
+        }
+
+        const delItem = (id) => {
+          const idx = list.findIndex(item => item.id === id)
+          list.splice(idx, 1)
+        }
+
+        const markAll = (value) => {
+          for (const item of list) {
+            item.done = value
+          }
+        }
+
+        const currentFilter = ref('all')
+        const setFilter = (status) => {
+          currentFilter.value = status;
+        }
+        const filteredList = computed(() => {
+          if (currentFilter.value === 'all') {
+            return list
+          } else if (currentFilter.value === 'active') {
+            return list.filter(item => item.done === false)
+          } else if (currentFilter.value === 'completed') {
+            return list.filter(item => item.done === true)
+          }
+        })
+
+
+        const delAll = () => {
+          list.length = 0
+        }
+
+        const delComplete = (value) => {
+          const filterItem = list.filter(item => item.done === value)
+          list.splice(0, list.length, ...filterItem)
+        }
+
+        const inputBorder = computed(() => {
+          if (input.value.length === 0) {
+            return ''
+          } else if (input.value.length < 2) {
+            return '5px solid red'
+          } else {
+            return '5px solid green'
+          }
+        })
+
+        const listCount = computed(() => {
+          return filteredList.value.length
+        })
+
+        watch(list, () => {
+          localStorage.list = JSON.stringify(list)
+        })
+
+        if (localStorage.list) {
+          const savedList = JSON.parse(localStorage.list)
+          if (savedList > 0) {
+            list.push(...savedList)
+            id = list.at(-1).id + 1
+          } else {
+            id = 1
+          }
+        }
+
+
+
+        const editId = ref(null)
+        const originalText = ref('')
+        const startEdit = (item) => {
+          editId.value = item.id
+          originalText.value = item.text
+        }
+        const finishEdit = () => {
+          editId.value = null
+          originalText.value = ''
+        }
+        const cancelEdit = (item) => {
+          item.text = originalText.value
+
+          editId.value = null
+          originalText.value = ''
+        }
+
+        return {
+          input,
+          list,
+          add,
+          inputBorder,
+          delItem,
+          markAll,
+          delAll,
+          delComplete,
+          currentFilter,
+          setFilter,
+          filteredList,
+          listCount,
+          editId,
+          startEdit,
+          finishEdit,
+          cancelEdit,
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+
+</html>
